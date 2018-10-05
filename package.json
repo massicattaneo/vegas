@@ -1,0 +1,52 @@
+{
+    "name": "vegas",
+    "version": "1.0.0",
+    "description": "Vegas WEB APP",
+    "main": "./src/index.hbs",
+    "private": true,
+    "scripts": {
+        "start": "NODE_ENV=development node_modules/nodemon/bin/nodemon.js ./web-app-deploy/server.js --watch web-app-deploy",
+        "build": "webpack --config webpack/webpack.config.build.js --env.patch",
+        "backup": "node ./backup/backup.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/massicattaneo/vegas.git"
+    },
+    "author": "Massimiliano Cattaneo",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/massicattaneo/vegas/issues"
+    },
+    "homepage": "https://github.com/massicattaneo/vegas#readme",
+    "devDependencies": {
+        "babel": "^6.23.0",
+        "babel-core": "^6.26.3",
+        "babel-loader": "^7.1.5",
+        "babel-preset-env": "^1.7.0",
+        "babel-regenerator-runtime": "^6.5.0",
+        "body-parser": "^1.18.3",
+        "compression": "^1.7.3",
+        "connect-mongo": "^2.0.1",
+        "copy-webpack-plugin": "^4.5.2",
+        "express": "^4.16.3",
+        "express-brute": "^1.0.1",
+        "express-brute-mongo": "^1.0.0",
+        "express-fileupload": "^1.0.0-alpha.1",
+        "express-session": "^1.15.6",
+        "handlebars": "^4.0.12",
+        "handlebars-loader": "^1.7.0",
+        "html-webpack-plugin": "^3.2.0",
+        "http": "0.0.0",
+        "install": "^0.12.1",
+        "mongodb": "^3.1.6",
+        "nodemon": "^1.18.4",
+        "npm": "^6.4.1",
+        "spider-detector": "^1.0.18",
+        "webpack": "^4.20.2",
+        "webpack-auto-inject-version": "^1.1.0",
+        "webpack-dev-middleware": "^3.4.0",
+        "webpack-hot-middleware": "^2.24.2",
+        "ws": "^6.1.0"
+    }
+}
