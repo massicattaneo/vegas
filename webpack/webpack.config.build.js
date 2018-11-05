@@ -18,7 +18,7 @@ const config = {
     },
     output: {
         path: path.resolve(__dirname, '../web-app-deploy/static'),
-        filename: '[name].bundle.js'
+        filename: '[name].bundle.[hash].js'
     },
     resolveLoader: {
         modules: ['modules/', 'node_modules']
