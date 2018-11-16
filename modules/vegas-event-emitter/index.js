@@ -15,8 +15,9 @@ module.exports = function EventEmitter() {
      * @param {function} callback - the callback to call on the event firing
      * @returns {function} a function to remove(off) the listener
      * */
-    obj.on = function (eventName, callback) {
+    obj.on = function (eventName, callback, excludeFromEmitResult = false) {
         events[eventName] = events[eventName] || [];
+        callback._excludeFromEmitResult = excludeFromEmitResult;
         events[eventName].push(callback);
         return () => obj.off(eventName, callback);
     };
@@ -50,7 +51,11 @@ module.exports = function EventEmitter() {
      * */
     obj.emit = function (eventName, param) {
         const values = [];
-        events[eventName] && events[eventName].forEach(callback => values.push(callback(param)));
+        events[eventName] && events[eventName].forEach(callback => {
+            const value = callback(param);
+            if (!callback._excludeFromEmitResult)
+                values.push(value);
+        });
         return values;
     };
 

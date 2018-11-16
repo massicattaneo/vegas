@@ -18,9 +18,10 @@ module.exports = function (FnObj = Function) {
 
     proto.filter = function (filter) {
         const self = this;
+        let counter = 0;
         return function (callback) {
             return self(function (...args) {
-                if (filter.call(this, ...args))
+                if (filter.call(this, ...args, counter++))
                     return callback.call(this, ...args);
             });
         };
@@ -28,9 +29,10 @@ module.exports = function (FnObj = Function) {
 
     proto.map = function (map) {
         const self = this;
+        let counter = 0;
         return function (callback) {
             return self(function (...args) {
-                return callback.call(this, map.call(this, ...args));
+                return callback.call(this, map.call(this, ...args, counter++));
             });
         };
     };
@@ -76,8 +78,45 @@ module.exports = function (FnObj = Function) {
         };
     };
 
-    proto.subscribe = function (callback) {
+    proto.queue = function () {
+        const self = this;
+        const queue = [];
+        let queueIndex = 0;
+        let isRunning = false;
+
+        function run() {
+            if (queue[queueIndex]) {
+                queue[queueIndex++]().then(run);
+                isRunning = true;
+            } else if (isRunning) {
+                isRunning = false;
+            }
+        }
+
+        return function (callback) {
+            return self(function (...args) {
+                queue.push(() => callback(...args));
+                !isRunning && run();
+            });
+        };
+    };
+
+    proto.compose = function (fn) {
+        const self = this;
+        return function (...args) {
+            return fn(self(...args));
+        };
+    };
+
+    proto.subscribe = function (callback = e => e) {
         return this(callback);
+    };
+
+    proto.promise = function () {
+        const self = this;
+        return new Promise(function (resolve) {
+            self(resolve);
+        });
     };
 
     FnObj.wrap = function (value) {

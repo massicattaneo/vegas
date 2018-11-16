@@ -7,10 +7,9 @@ function extendObject(target, extend) {
     return target;
 }
 
-function Stack() {
+function Stack(context = {}) {
     const obj = {};
     const stack = [];
-    const context = {};
     let index = -1;
     let isRunning = false;
 
@@ -43,9 +42,10 @@ function Stack() {
     return obj;
 }
 
-function Middleware(fnName, obj = {}) {
+function Middleware(fnName, obj = {}, autoProceedToAfter = true) {
     const before = [];
     const after = [];
+    const context = {};
 
     obj.before = function (callback) {
         before.push(callback);
@@ -55,18 +55,27 @@ function Middleware(fnName, obj = {}) {
         after.push(callback);
     };
 
+    obj.context = () => context;
+
     const callback = obj[fnName] || new Function();
 
     obj[fnName] = function (...args) {
-        const stack = Stack();
+        const stack = Stack(context);
         stack.add(next => next(...args));
         before.forEach(stack.add);
-        stack.add(callback);
+        if (autoProceedToAfter) {
+            stack.add(function (...args) {
+                callback(...args);
+                args[args.length - 1]();
+            });
+        } else {
+            stack.add(callback);
+        }
         after.forEach(stack.add);
         stack.exe();
         return function (callback) {
             stack.exe(callback);
-        }
+        };
     };
     return obj;
 }
