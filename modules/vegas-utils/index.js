@@ -47,12 +47,12 @@ function Middleware(fnName, obj = {}, autoProceedToAfter = true) {
     const after = [];
     const context = {};
 
-    obj.before = function (callback) {
-        before.push(callback);
+    obj.before = function (md) {
+        before.push(md);
     };
 
-    obj.after = function (callback) {
-        after.push(callback);
+    obj.after = function (md) {
+        after.push(md);
     };
 
     obj.context = () => context;
@@ -65,7 +65,7 @@ function Middleware(fnName, obj = {}, autoProceedToAfter = true) {
         before.forEach(stack.add);
         if (autoProceedToAfter) {
             stack.add(function (...args) {
-                callback(...args);
+                callback.call(context, ...args);
                 args[args.length - 1]();
             });
         } else {
@@ -74,9 +74,25 @@ function Middleware(fnName, obj = {}, autoProceedToAfter = true) {
         after.forEach(stack.add);
         stack.exe();
         return function (callback) {
-            stack.exe(callback);
+            return stack.exe(callback);
         };
     };
+
+    obj.run = function (...args) {
+        const callback = args[args.length - 1];
+        const arg = args.splice(0, args.length - 1);
+        const stack = Stack(context);
+        stack.add(next => next(...arg));
+        before.forEach(stack.add);
+        stack.add(function (...args) {
+            callback.call(context, ...args);
+        });
+        stack.exe();
+        return function (callback) {
+            return stack.exe(callback);
+        };
+    };
+
     return obj;
 }
 

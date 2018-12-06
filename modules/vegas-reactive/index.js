@@ -84,7 +84,7 @@ module.exports = function () {
                     return callback.call(em.context(), rx, key);
                 });
             });
-        callback(rx);
+        em.run('run', rx, callback);
         return () => remove.forEach(r => r());
     };
 
@@ -107,9 +107,14 @@ module.exports = function () {
             return [globalKey, key];
         });
         em.before(function (event, value, next) {
-            const find = keys.find(([a, b]) => a === event);
+            if (event === 'get') return next(event, value);
+            const find = keys.find(([a]) => a === event);
             emitChanges = false;
-            if (find) {
+            if (event === 'run') {
+                callback.call(this, rx, () => {
+                    next(rx);
+                });
+            } else if (find) {
                 callback.call(this, rx, () => {
                     next(event, store[find[1]]);
                 });

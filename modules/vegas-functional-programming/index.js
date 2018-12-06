@@ -108,6 +108,13 @@ module.exports = function (FnObj = Function) {
         };
     };
 
+    proto.prepose = function (fn) {
+        const self = this;
+        return function (...args) {
+            return self(fn(...args));
+        };
+    };
+
     proto.subscribe = function (callback = e => e) {
         return this(callback);
     };

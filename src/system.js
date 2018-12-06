@@ -1,10 +1,17 @@
 import FP from 'vegas-functional-programming';
 import Em from 'vegas-event-emitter';
-import { Stack, Middleware } from 'vegas-utils';
+import { Middleware, Stack } from 'vegas-utils';
 import { Node } from 'vegas-dom';
 import Reactive from 'vegas-reactive';
-import { parseXml } from '../modules/vegas-xml';
-import template from './template.html';
+import { parseXml } from 'vegas-xml';
+import htmlTemplate from './template.html';
+import {
+    handlebarVariable,
+    loopObjectOnString,
+    removeNewLine,
+    replaceLoopsOnString,
+    handleBarEachOptions
+} from '../modules/vegas-templates';
 
 const em = Em();
 const stack = Stack();
@@ -12,7 +19,60 @@ const rx = Reactive();
 
 FP();
 
-let i = 0;
+/** TODO: xmlParsing && template creation (vegas-template) */
+const variables = rx.create({
+    url: '',
+    balance: 200,
+    button: {
+        type: 'button',
+        text: 'PRESS ME'
+    },
+    list: [
+        { id: 'ME', items: [1, 2] },
+        { id: 'YOU', items: [3, 4] }
+    ],
+    names: ['a', 'b', 'c']
+});
+
+window.v = variables;
+
+function currency(value, symbol) {
+    return `${Number(value).toFixed(2)}${symbol || '€'}`;
+}
+
+function reactive(value, param, parse) {
+    const id = (reactive._id || 0) + 1;
+    reactive._id = id;
+    rx.connect({ i: () => variables[param] }, function ({ i }) {
+        console.log(parse);
+        if (document.getElementById(`rx_${id}`))
+            document.getElementById(`rx_${id}`).innerText = parse(i);
+    });
+    return `<span id="rx_${id}">${value}</span>`;
+}
+
+const parsers = { currency, reactive };
+
+function build(htmlTemplate, variables = {}) {
+    return Function
+        .identity()
+        .compose(removeNewLine)
+        .compose(loopObjectOnString.partial(handlebarVariable.argumentsOrder(1, 2, 3, 0).partial(parsers), variables))
+        .compose(replaceLoopsOnString.partial(handlebarVariable, variables, handleBarEachOptions()))
+        .subscribe(htmlTemplate);
+}
+
+// console.log(handlebarVariable.argumentsOrder(1,2,3,4).partial({ currency })(htmlTemplate, 'money', 100))
+
+document.body.appendChild(Node(build(htmlTemplate, variables)));
+
+// const addAndDouble = add.compose(multiply.partial(2));
+// console.log(addAndDouble(20, 3, 1)); //48
+
+// console.log(parseXml(template));
+
+
+// let i = 0;
 // const removeA = setInterval
 //     .argumentsOrder(1, 0)
 //     .partial(200)
@@ -112,10 +172,10 @@ let i = 0;
 // const store = rx.create({ a: 1 });
 //
 // rx.use(store, function (s, next) {
-//     this.a = 23;
-//     setTimeout(next, 500);
+//     s.a = 23;
+//     setTimeout(next, 3500);
 // });
-//
+
 // rx.use(store, function (s, next) {
 //     console.log('USE CONTEXT', this);
 //     setTimeout(next, 500);
@@ -137,6 +197,8 @@ let i = 0;
 //     console.log('CONNECT', s.a);
 // });
 
+// store.a = 3;
+//
 //
 // rx.use(store, function (s, next) {
 //     s.a = 4;
@@ -152,11 +214,3 @@ let i = 0;
 //     const a = await Promise.all(rx.set(store, 'a', 2));
 //     console.log(a);
 // })();
-
-
-/** TODO: xmlParsing && template creation (vegas-template) */
-// const addAndDouble = add.compose(multiply.partial(2));
-// console.log(addAndDouble(20, 3, 1)); //48
-
-// console.log(parseXml(template));
-

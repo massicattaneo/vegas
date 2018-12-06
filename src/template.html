@@ -1,5 +1,21 @@
 <div>
+    <img src="{{url}}" width="100px"/>
     <br/>
-    <button>CLOSE</button>
-    <img src="{{url}}"/>
+    <div>BALANCE: {{balance, currency, reactive:balance}}</div>
+    <input type="{{button.type}}" value="{{button.text}}" />
+    <br/>
+    {{#each list}}
+        <div>{{this.id}}
+        {{#each this.items}}
+            {{this}}
+        {{/each}}
+        </div>
+    {{/each}}
+
+    <ul>
+    {{#each names}}
+        <li>{{this}}</li>
+    {{/each}}
+    </ul>
+    <span>FINISH</span>
 </div>
