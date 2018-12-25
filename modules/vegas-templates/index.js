@@ -7,20 +7,22 @@ function loopObjectOnString(...args) {
     }, string);
 }
 
-function handlebarVariable(string, key, value, formatters = {}) {
-    const search = `{{${key}([^}]+)}}`;
+function replaceVariable(formatters = {}, options = {}, string, key, value) {
+    const { tagMatch } = options;
+    const [a, b] = tagMatch.split('*');
+    const search = `${a}${key}([^}]+)${b}`;
     const match = string.match(new RegExp(search));
     if (match) {
         value = match[1].split(',').splice(1).reduce((val, i, index, arr) => {
             const [helper, param = ''] = i.trim().split(':');
             return formatters[helper] ? formatters[helper](val, param, (toChange) => index === 0 ? toChange : arr.slice(0, index)
                 .map(i => (val) => {
-                    return formatters[i.trim().split(':')[0]](val, i.trim().split(':')[1])
+                    return formatters[i.trim().split(':')[0]](val, i.trim().split(':')[1]);
                 }).map(c => c(toChange))) : val;
         }, value);
         return string.replace(new RegExp(search, 'g'), value);
     }
-    return string.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    return string.replace(new RegExp(`${a}${key}${b}`, 'g'), value);
 }
 
 function removeNewLine(string) {
@@ -64,14 +66,71 @@ function replaceLoopsOnString(action, variables = {}, options, template) {
     return `${template.substr(0, loops[0].start)}${loopStrings.join('')}${template.substr(loops[loops.length - 1].end)}`;
 }
 
-function handleBarEachOptions() {
-    return { endTag: '{{/each}}', startTag: '{{#each *}}' };
+function evaluator(variables, toEval) {
+    'use strict';
+    const str = Object.keys(variables).reduce(function (acc, key) {
+        return `var ${key} = '${variables[key]}'; ${acc};`;
+    }, toEval);
+    return eval(str);
+}
+
+function conditionBlock(match, template, variables) {
+    const [ifTemplate, toEval, innerHtml] = match;
+    return template.replace(ifTemplate, evaluator(variables, toEval) ? innerHtml : '');
+}
+
+function replaceBlocks(action, variables = {}, options, template) {
+    const { startTag, endTag } = options;
+    const [a, b] = startTag.split('*');
+    const regExp = new RegExp(`${a}([^${b[0]}]*)${b}(.*)${endTag}`);
+    let match = template.match(regExp);
+    while (match) {
+        template = action(match, template, variables);
+        match = template.match(regExp);
+    }
+    return template;
+}
+
+function handlebarBlock(tag = '') {
+    return { endTag: `{{/${tag}}}`, startTag: `{{#${tag} *}}`, tagMatch: '{{*}}' };
+}
+
+function localesBlock(tag = '') {
+    return { endTag: `[[/${tag}]]`, startTag: `[[#${tag} *]]`, tagMatch: '\\[\\[*\\]\\]' };
+}
+
+function componentBlock(tag = '') {
+    return { endTag: `((/${tag}))`, startTag: `((#${tag} *))`, tagMatch: '\\(\\(*\\)\\)' };
+}
+
+function handlebarBuilder(htmlTemplate, variables = {}, parsers = {}) {
+    return Function
+        .identity()
+        .compose(removeNewLine)
+        .compose(replaceBlocks.partial(conditionBlock, variables, handlebarBlock('if')))
+        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, handlebarBlock()), variables))
+        .compose(replaceLoopsOnString.partial(replaceVariable.partial(parsers, handlebarBlock()), variables, handlebarBlock('each')))
+        .subscribe(htmlTemplate);
+}
+
+function localesBuilder(htmlTemplate, locales = {}, parsers = {}) {
+    return Function
+        .identity()
+        .compose(removeNewLine)
+        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, localesBlock()), locales))
+        .subscribe(htmlTemplate);
+}
+
+function componentBuilder(htmlTemplate, locales = {}, parsers = {}) {
+    return Function
+        .identity()
+        .compose(removeNewLine)
+        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, componentBlock()), locales))
+        .subscribe(htmlTemplate);
 }
 
 module.exports = {
-    loopObjectOnString,
-    handlebarVariable,
-    removeNewLine,
-    replaceLoopsOnString,
-    handleBarEachOptions
+    handlebarBuilder,
+    localesBuilder,
+    componentBuilder
 };

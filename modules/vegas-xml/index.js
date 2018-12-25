@@ -22,16 +22,15 @@ function createChild(name, parent) {
 function convertValue(value) {
     const ret = value.toString()
         .replace(/"/g, '')
-        .replace(/'/g, '')
+        // .replace(/'/g, '')
         .trim();
-    if (value.startsWith('url(#')) return '';
     if (value.indexOf('px') !== -1) {
         return `${Number(ret.replace('px', ''))}px`;
     }
     return isNaN(ret) ? ret : (Number(ret));
 }
 
-function parseXml(svgString) {
+function xmlToJson(svgString, root = false) {
     const target = createChild('root');
     let ref = target;
     svgString.replace(/\n/g, '')
@@ -58,9 +57,9 @@ function parseXml(svgString) {
                 ref.content += line.trim();
             }
         });
-    return target.children[0];
+    return root ? target : target.children[0];
 }
 
 module.exports = {
-    parseXml
+    xmlToJson
 };

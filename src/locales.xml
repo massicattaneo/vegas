@@ -1,0 +1,9 @@
+<locales>
+    <locale id="balance">
+        <en>Balance: {{balance, currency, reactive:balance}}</en>
+        <it>SALDO: {{balance, currency, reactive:balance}}</it>
+    </locale>
+    <locale id="press-me">
+        <en>PRESS ME</en>
+    </locale>
+</locales>

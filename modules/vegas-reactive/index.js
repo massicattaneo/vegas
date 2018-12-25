@@ -84,7 +84,10 @@ module.exports = function () {
                     return callback.call(em.context(), rx, key);
                 });
             });
-        em.run('run', rx, callback);
+        em.run('run', rx, function (...args) {
+            const react = args.find(i => i instanceof Reactive);
+            callback(react);
+        });
         return () => remove.forEach(r => r());
     };
 

@@ -49,6 +49,10 @@ const config = {
             {
                 test: /\.json$/,
                 use: 'json-loader'
+            },
+            {
+                test: /\.vue/,
+                use: 'raw-loader'
             }
         ]
     },

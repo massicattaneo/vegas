@@ -46,6 +46,10 @@ const config = {
                 use: 'raw-loader'
             },
             {
+                test: /.(xml)$/,
+                use: 'raw-loader'
+            },
+            {
                 test: /.(scss)$/,
                 use: 'gml-scss-loader'
             },
@@ -56,6 +60,10 @@ const config = {
             {
                 test: /\.map$/,
                 use: 'gml-map-loader'
+            },
+            {
+                test: /\.vue/,
+                use: 'raw-loader'
             }
         ]
     },
