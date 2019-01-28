@@ -37,13 +37,43 @@
     <meta name="twitter:image" content="{{htmlWebpackPlugin.options.image}}">
     <meta name="twitter:creator" content="@bellezainandout">
 
-    <link href="/assets/style/main.css" rel="stylesheet"/>
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>{{htmlWebpackPlugin.options.title}}</title>
-</head>
-<body>
 
-<div id="app"></div>
+    <!--<link rel="stylesheet" href="/assets/styles/skel.css"/>-->
+    <link rel="stylesheet" href="/assets/styles/style.css"/>
+    <link rel="stylesheet" href="/assets/styles/style-wide.css"/>
+    <link rel="stylesheet" href="/assets/styles/style-noscript.css"/>
+</head>
+<body class="loading">
+<div id="wrapper">
+    <div id="bg"></div>
+    <div id="overlay"></div>
+    <div id="main">
+
+        <!-- Header -->
+        <header id="header">
+            <h1>Adam Jensen</h1>
+            <p>Security Chief &nbsp;&bull;&nbsp; Cyborg &nbsp;&bull;&nbsp; Never asked for this</p>
+            <nav>
+                <ul>
+                    <li><a href="#" class="fa fa-twitter"><span>Twitter</span></a></li>
+                    <li><a href="#" class="fa fa-facebook"><span>Facebook</span></a></li>
+                    <li><a href="#" class="fa fa-dribbble"><span>Dribbble</span></a></li>
+                    <li><a href="#" class="fa fa-github"><span>Github</span></a></li>
+                    <li><a href="#" class="fa fa-envelope-o"><span>Email</span></a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Footer -->
+        <footer id="footer">
+            <span class="copyright">&copy; Untitled. Design: <a href="http://html5up.net">HTML5 UP</a>.</span>
+        </footer>
+
+    </div>
+</div>
 <script src="/{{ htmlWebpackPlugin.files.chunks.public.entry }}"></script>
+
 </body>
 </html>

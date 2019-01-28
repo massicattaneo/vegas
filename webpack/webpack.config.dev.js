@@ -58,12 +58,8 @@ const config = {
                 use: 'json-loader'
             },
             {
-                test: /\.map$/,
-                use: 'gml-map-loader'
-            },
-            {
                 test: /\.vue/,
-                use: 'raw-loader'
+                use: 'vegas-webpack-vue-loader'
             }
         ]
     },

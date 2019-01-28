@@ -1,3 +1,6 @@
+import { xmlToJson } from '../vegas-xml';
+import { tagRegEx } from '../vegas-regexp';
+
 function loopObjectOnString(...args) {
     const [prefix, action, scope, string] = args.length === 3 ? ['', args[0], args[1], args[2]] : args;
     return Object.keys(scope).reduce(function (s, key) {
@@ -10,7 +13,7 @@ function loopObjectOnString(...args) {
 function replaceVariable(formatters = {}, options = {}, string, key, value) {
     const { tagMatch } = options;
     const [a, b] = tagMatch.split('*');
-    const search = `${a}${key}([^}]+)${b}`;
+    const search = `${a}${key}([^${b[b.length - 1]}]+)${b}`;
     const match = string.match(new RegExp(search));
     if (match) {
         value = match[1].split(',').splice(1).reduce((val, i, index, arr) => {
@@ -35,7 +38,7 @@ function indexes(template, search) {
     if (!match) return ret;
     const repeat = match.length;
     for (let i = 0; i < repeat; i++) {
-        ret.push(template.indexOf(search, (ret[i - 1] || -1) + 1));
+        ret.push(template.indexOf(search.replace(/\\/g, ''), (ret[i - 1] || -1) + 1));
     }
     return ret;
 }
@@ -53,17 +56,20 @@ function replaceLoopsOnString(action, variables = {}, options, template) {
             return acc.concat(startIndexes.splice(0, starts.length).reduce(a => a, { start: starts[0] || 0, end }));
         }, [])
         .filter(i => i.start !== 0);
-    const loopStrings = loops.map(i => {
-        const match = template.substr(i.start).match(new RegExp(`${a.trim()}([^}]*)${b.trim()}`));
-        const subTemplate = template.substr(i.start + match[0].length, i.end - i.start - match[0].length - endTag.length);
-        return variables[match[1].trim().replace('this.', '')].map(i => {
+    return loops.reduce((result, i, index, array) => {
+        const match = result.substr(i.start).match(new RegExp(`${a.trim()}([^${b[b.length - 1]}]*)${b.trim()}`));
+        const subTemplate = result.substr(i.start + match[0].length, i.end - i.start - match[0].length - endTag.length);
+        const t = variables[match[1].trim().replace('this.', '')].map(i => {
             let ret = loopObjectOnString('this.', action, i, subTemplate);
             ret = loopObjectOnString(action, { this: i }, ret);
             return replaceLoopsOnString(action, i, options, ret);
         }).join('');
-
-    });
-    return `${template.substr(0, loops[0].start)}${loopStrings.join('')}${template.substr(loops[loops.length - 1].end)}`;
+        array.slice(index + 1).forEach(d => {
+            d.start += (t.length - subTemplate.length - match[0].length - endTag.length);
+            d.end += (t.length - subTemplate.length - match[0].length - endTag.length);
+        });
+        return `${result.substr(0, i.start)}${t}${result.substr(i.end)}`;
+    }, template);
 }
 
 function evaluator(variables, toEval) {
@@ -100,7 +106,7 @@ function localesBlock(tag = '') {
 }
 
 function componentBlock(tag = '') {
-    return { endTag: `((/${tag}))`, startTag: `((#${tag} *))`, tagMatch: '\\(\\(*\\)\\)' };
+    return { endTag: `\\(\\(/${tag}\\)\\)`, startTag: `\\(\\(#${tag} *\\)\\)`, tagMatch: '\\(\\(*\\)\\)' };
 }
 
 function handlebarBuilder(htmlTemplate, variables = {}, parsers = {}) {
@@ -113,24 +119,72 @@ function handlebarBuilder(htmlTemplate, variables = {}, parsers = {}) {
         .subscribe(htmlTemplate);
 }
 
-function localesBuilder(htmlTemplate, locales = {}, parsers = {}) {
+function localesBuilder(htmlTemplate, variables = {}, parsers = {}) {
     return Function
         .identity()
         .compose(removeNewLine)
-        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, localesBlock()), locales))
+        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, localesBlock()), variables))
         .subscribe(htmlTemplate);
 }
 
-function componentBuilder(htmlTemplate, locales = {}, parsers = {}) {
+function componentBuilder(htmlTemplate, variables = {}, parsers = {}) {
     return Function
         .identity()
         .compose(removeNewLine)
-        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, componentBlock()), locales))
+        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, componentBlock()), variables))
+        .compose(replaceBlocks.partial(conditionBlock, variables, handlebarBlock('if')))
+        .compose(loopObjectOnString.partial(replaceVariable.partial(parsers, handlebarBlock()), variables))
+        .compose(replaceLoopsOnString.partial(replaceVariable.partial(parsers, handlebarBlock()), variables, handlebarBlock('each')))
         .subscribe(htmlTemplate);
+}
+
+function toVariables(json) {
+    return json.children.reduce(function (acc, item) {
+        if (!acc[item.name])
+            acc[item.name] = item.content;
+        else if (acc[item.name] instanceof Array)
+            acc[item.name].push(item.content);
+        else
+            acc[item.name] = [acc[item.name], item.content];
+        return acc;
+    }, {});
+}
+
+function componentsHandler(html, components, parsers) {
+    let classIndex = -1;
+    let style = '';
+    Object.keys(components).forEach(function (componentName) {
+        let componentTpl = components[componentName].template;
+        let componentStyle = components[componentName].style;
+        const className = `v_${++classIndex}`;
+        const cmpTags = componentTpl.match(tagRegEx).map(i => i.trim()).filter(i => i);
+        const [cmpTag] = cmpTags;
+        (html.match(new RegExp(`<${componentName}[^>]*>`, 'g')) || []).forEach(function () {
+            const start = html.match(new RegExp(`<${componentName}[^>]*>`));
+            const end = html.match(new RegExp(`<\\/${componentName}>`));
+            const endTagLength = `</${componentName}>`.length;
+            const toReplace = html.substr(start.index, end.index - start.index + endTagLength);
+            const props = toVariables(xmlToJson(html.substr(start.index + start[0].length, end.index - start.index - start[0].length), true));
+            const matchClass = cmpTag.match(/class="([^"]*)"/);
+            if (matchClass) {
+                componentTpl = componentTpl.replace(cmpTag,
+                    `${cmpTag.substr(0, cmpTag.length - 1).replace(matchClass[0], '')} 
+                    ${matchClass[0].substr(0, matchClass[0].length - 1)} ${className}" data-component="${componentName}"
+                    data-props='${JSON.stringify(props)}'>`);
+            } else {
+                componentTpl = componentTpl.replace(cmpTag, `${cmpTag.substr(0, cmpTag.length - 1)} class="${className}" data-component="${componentName}">`);
+            }
+            const cmpBuild = componentBuilder(componentTpl, props, parsers);
+            html = html.replace(toReplace, cmpBuild);
+        });
+        style += componentStyle.replace(/\.&/g, `.${className}`);
+    });
+    return { html, style };
 }
 
 module.exports = {
     handlebarBuilder,
     localesBuilder,
-    componentBuilder
+    componentBuilder,
+    componentsHandler
 };

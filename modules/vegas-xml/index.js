@@ -60,6 +60,11 @@ function xmlToJson(svgString, root = false) {
     return root ? target : target.children[0];
 }
 
+function jsonToXml(json) {
+    return `<${json.name} ${Object.keys(json.attributes).map(n => `${n}="${json.attributes[n]}"`).join(' ')}>${json.content}${json.children.map(jsonToXml).join('')}</${json.name}>`;
+}
+
 module.exports = {
-    xmlToJson
+    xmlToJson,
+    jsonToXml
 };

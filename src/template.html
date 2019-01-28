@@ -1,14 +1,14 @@
 <form>
     <img src="{{url}}" width="100px"/>
-    <br/>
     {{#if balance<250}}
     <div>[[balance]]</div>
     {{/if}}
-    <mybutton>
-        <label>[[press-me]]</label>
-        <message>OK!!!</message>
-    </mybutton>
-    <br/>
+    <mytable>
+        {{#each names}}
+        <name>{{this}}</name>
+        {{/each}}
+    </mytable>
+
     {{#each list}}
         <div>{{this.id}}
         {{#each this.items}}
@@ -17,10 +17,22 @@
         </div>
     {{/each}}
 
-    <ul>
-    {{#each names}}
-        <li>{{this}}</li>
-    {{/each}}
-    </ul>
+
+
+    <ol>
+
+        {{#each names}}
+        <li>
+            <mybutton>
+                <label>{{this}}</label>
+                <reactive>balance</reactive>
+                <message>YOU CLICKED: {{this}}</message>
+            </mybutton>
+        </li>
+        {{/each}}
+
+    </ol>
+
     <span>FINISH</span>
+
 </form>

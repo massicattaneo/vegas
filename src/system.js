@@ -5,12 +5,25 @@ import { Node } from 'vegas-dom';
 import Reactive from 'vegas-reactive';
 import { xmlToJson } from 'vegas-xml';
 import htmlTemplate from './template.html';
-import { handlebarBuilder, localesBuilder, componentBuilder } from '../modules/vegas-templates';
+import { componentsHandler, handlebarBuilder, localesBuilder } from '../modules/vegas-templates';
 import localesXml from './locales.xml';
 import { xmlToLocales } from 'vegas-localization';
-import button from './mybutton.vue';
+import { createComponents } from '../modules/vegas-dom';
 
-const mybutton = xmlToJson(button, true);
+//IMPORT STATEMENTS FOLDER
+const STATEMENTS = require.context('./statements/', true, /.vue/);
+const statements = {};
+STATEMENTS.keys().forEach((filename) => {
+    statements[filename.replace('./', '').replace('.vue', '')] = STATEMENTS(filename).default;
+});
+
+//IMPORT STATEMENTS FOLDER
+const COMPONENTS = require.context('./components/', true, /.vue/);
+const components = {};
+COMPONENTS.keys().forEach((filename) => {
+    components[filename.replace('./', '').replace('.vue', '')] = COMPONENTS(filename);
+});
+
 
 const em = Em();
 const stack = Stack();
@@ -21,7 +34,7 @@ FP();
 const locales = xmlToLocales(localesXml);
 
 /** TODO: xmlParsing && template creation (vegas-template) */
-const variables = rx.create({
+const store = rx.create({
     url: '',
     lang: 'en',
     balance: 200,
@@ -32,7 +45,7 @@ const variables = rx.create({
     names: ['a', 'b', 'c']
 });
 
-window.v = variables;
+window.v = store;
 
 function currency(value, symbol) {
     return `${Number(value).toFixed(2)}${symbol || '€'}`;
@@ -45,62 +58,24 @@ function string(value, type) {
 function reactive(value, param, parse) {
     const id = (reactive._id || 0) + 1;
     reactive._id = id;
-    rx.connect({ i: () => variables[param] }, function ({ i }) {
+
+    function react({ i }) {
         if (document.getElementById(`rx_${id}`))
             document.getElementById(`rx_${id}`).innerHTML = parse(i);
-    });
+    }
+
+    rx.connect({ i: () => store[param] }, react);
+    setTimeout(() => react({ i: store[param] }), 0);
     return `<span id="rx_${id}">${value}</span>`;
 }
 
 const parsers = { currency, reactive, string };
 
-function jsonToXml(j) {
-    const json = j.children[0];
-    return `<${json.name} ${Object.keys(json.attributes).map(n => `${n}="${json.attributes[n]}"`).join(' ')}>
-                ${json.content}
-            </${json.name}>`;
-}
-
-function componentsHandler(innerHTML, components) {
-    Object.keys(components).forEach(function (componentsName) {
-        const match = innerHTML.match(new RegExp(`<${componentsName}.*>.*</${componentsName}.`));
-        if (match) {
-            const m = match[0];
-            const json = xmlToJson(m).children.reduce((a, i) => {
-                a[i.name] = i.content;
-                return a;
-            }, {});
-            const componentTpl = components[componentsName].children.find(c => c.name === 'template');
-            let htmlTemplate1 = jsonToXml(componentTpl);
-            const startTag = htmlTemplate1.match(/<[^>]*>/)[0];
-            htmlTemplate1 = `${startTag.substr(0, startTag.length - 1)} data-component="${componentsName}">${htmlTemplate1.substr(startTag.length)}`;
-            innerHTML = innerHTML.replace(m, componentBuilder(htmlTemplate1, json));
-        }
-    });
-    return innerHTML;
-}
-
-function loop(node, components) {
-    if (node.getAttribute('data-component')) {
-        let form, looper = node;
-        while (!form) {
-            form = looper.getElementsByTagName('form')[0];
-            looper = looper.parentElement;
-        }
-        const component = components[node.getAttribute('data-component')].children.find(c => c.name === 'script').content;
-        const constructor = new Function(`return ${component}`)();
-        constructor(form);
-    }
-    const [...children] = node.children;
-    children.forEach(i => loop(i, components));
-}
-
-rx.connect({ lang: () => variables.lang }, function ({ lang }) {
-    const innerHTML = componentsHandler(handlebarBuilder(localesBuilder(htmlTemplate, locales[lang], parsers), variables, parsers), { mybutton });
-    const app = document.getElementById('app');
-    app.innerHTML = innerHTML;
-    loop(app, { mybutton });
-});
+const { html, style } = componentsHandler(handlebarBuilder(localesBuilder(htmlTemplate, locales[store.lang], parsers), store, parsers), components, parsers);
+// const app = document.getElementById('app');
+// document.head.appendChild(Node(`<style>${style}</style>`));
+// app.innerHTML = html;
+// const cmpList = createComponents(app, components, { store, rx, parsers });
 
 
 // const addAndDouble = add.compose(multiply.partial(2));
