@@ -2,78 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="alternate" hreflang="es" href="https://www.inandoutbelleza.es/es"/>
+    <link rel="alternate" hreflang="[[index-language]]" href="[[index-origin]]/[[index-language]]"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="theme-color" content="#56ab29"/>
+    <meta name="theme-color" content="[[index-theme-color]]"/>
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
-    <link href="https://www.inandoutbelleza.es/assets/images/favicon.png" rel="shortcut icon" type="image/x-icon">
+    <link href="[[index-origin]]/assets/images/favicon.png" rel="shortcut icon" type="image/x-icon">
 
     <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#56ab29">
-    <meta name="apple-mobile-web-app-title" content="In&Out Belleza">
-    <link href="https://www.inandoutbelleza.es/assets/images/apple-touch-icon.png" rel="apple-touch-icon-precomposed">
-    <link href="https://www.inandoutbelleza.es/assets/images/apple-touch-icon-114x114.png" sizes="114x114"
+    <meta name="apple-mobile-web-app-status-bar-style" content="[[index-theme-color]]">
+    <meta name="apple-mobile-web-app-title" content="[[index-title]]">
+    <link href="[[index-origin]]/assets/images/apple-touch-icon.png" rel="apple-touch-icon-precomposed">
+    <link href="[[index-origin]]/assets/images/apple-touch-icon-114x114.png" sizes="114x114"
           rel="apple-touch-icon-precomposed">
-    <link href="https://www.inandoutbelleza.es/assets/images/apple-touch-icon-72x72.png" sizes="72x72"
+    <link href="[[index-origin]]/assets/images/apple-touch-icon-72x72.png" sizes="72x72"
           rel="apple-touch-icon-precomposed">
-    <link href="https://www.inandoutbelleza.es/assets/images/apple-touch-icon-144x144.png" sizes="144x144"
+    <link href="[[index-origin]]/assets/images/apple-touch-icon-144x144.png" sizes="144x144"
           rel="apple-touch-icon-precomposed">
-    <meta id="meta-description" name="description" content="{{htmlWebpackPlugin.options.description}}">
+    <meta id="meta-description" name="description" content="[[index-description]]">
     <meta name="robots" content="noodp">
     <meta property="fb:app_id" content="1950796945206063">
-    <meta property="og:image" content="{{htmlWebpackPlugin.options.image}}">
-    <meta property="og:locale" content="es_ES">
+    <meta property="og:image" content="[[index-image]]">
+    <meta property="og:locale" content="[[index-locale]]">
     <meta property="og:type" content="website">
-    <meta id="og-meta-title" property="og:title" content="{{htmlWebpackPlugin.options.title}}">
-    <meta id="og-meta-description" property="og:description" content="{{htmlWebpackPlugin.options.description}}">
-    <meta property="og:site_name" content="In&amp;Out Centro de Belleza en Málaga">
+    <meta id="og-meta-title" property="og:title" content="[[index-title]]">
+    <meta id="og-meta-description" property="og:description" content="[[index-description]]">
+    <meta property="og:site_name" content="[[index-title]]">
     <meta name="twitter:card" content="summary">
-    <meta id="twitter-meta-description" name="twitter:description" content="{{htmlWebpackPlugin.options.description}}">
-    <meta id="twitter-meta-title" name="twitter:title" content="{{htmlWebpackPlugin.options.title}}">
-    <meta name="twitter:site" content="@bellezainandout">
-    <meta name="twitter:image" content="{{htmlWebpackPlugin.options.image}}">
-    <meta name="twitter:creator" content="@bellezainandout">
+    <meta id="twitter-meta-description" name="twitter:description" content="[[index-description]]">
+    <meta id="twitter-meta-title" name="twitter:title" content="[[index-title]]">
+    <meta name="twitter:site" content="[[index-twitter-site]]">
+    <meta name="twitter:image" content="[[index-image]]">
+    <meta name="twitter:creator" content="[[index-author]]">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <title>{{htmlWebpackPlugin.options.title}}</title>
+    <title>[[index-title]]</title>
 
-    <!--<link rel="stylesheet" href="/assets/styles/skel.css"/>-->
+    <link rel="stylesheet" href="/assets/fonts/icon-moon/demo-files/symbols.css"/>
     <link rel="stylesheet" href="/assets/styles/style.css"/>
-    <link rel="stylesheet" href="/assets/styles/style-wide.css"/>
-    <link rel="stylesheet" href="/assets/styles/style-noscript.css"/>
 </head>
 <body class="loading">
+<script src="/{{ htmlWebpackPlugin.files.chunks.public.entry }}"></script>
+
 <div id="wrapper">
     <div id="bg"></div>
-    <div id="overlay"></div>
-    <div id="main">
 
-        <!-- Header -->
-        <header id="header">
-            <h1>Adam Jensen</h1>
-            <p>Security Chief &nbsp;&bull;&nbsp; Cyborg &nbsp;&bull;&nbsp; Never asked for this</p>
-            <nav>
-                <ul>
-                    <li><a href="#" class="fa fa-twitter"><span>Twitter</span></a></li>
-                    <li><a href="#" class="fa fa-facebook"><span>Facebook</span></a></li>
-                    <li><a href="#" class="fa fa-dribbble"><span>Dribbble</span></a></li>
-                    <li><a href="#" class="fa fa-github"><span>Github</span></a></li>
-                    <li><a href="#" class="fa fa-envelope-o"><span>Email</span></a></li>
-                </ul>
-            </nav>
-        </header>
+    <a id="language" class="it" href=""></a>
 
-        <!-- Footer -->
-        <footer id="footer">
-            <span class="copyright">&copy; Untitled. Design: <a href="http://html5up.net">HTML5 UP</a>.</span>
-        </footer>
+    **content**
 
-    </div>
+    <nav id="navigation">
+        <ul style="padding: 0;">
+            <li><a href="[[pages.account.href]]" title="[[pages.account.title]]" class="icon icon-user"></a></li>
+            <li><a href="[[pages.info.href]]" title="[[pages.info.title]]" class="icon icon-info"></a></li>
+            <li><a href="[[pages.phone.href]]" title="[[pages.phone.title]]" class="icon icon-phone"></a></li>
+            <li><a href="[[pages.location.href]]" title="[[pages.location.title]]" class="icon icon-location"></a></li>
+            <li><a href="[[pages.calendar.href]]" title="[[pages.calendar.title]]" class="icon icon-calendar"></a></li>
+            <li><a href="[[pages.photo.href]]" title="[[pages.photo.title]]" class="icon icon-images"></a></li>
+            <li><a href="[[pages.exchange.href]]" title="[[pages.exchange.title]]" class="icon icon-tab"></a></li>
+        </ul>
+    </nav>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <a href="[[footer.trentino.href]]" target="_blank" class="copyright">[[footer.trentino.title]]</a> &nbsp;|&nbsp;
+        <a href="[[footer.superski.href]]" target="_blank" class="copyright">[[footer.superski.title]]</a> |&nbsp;
+        <a href="[[footer.carezza.href]]" target="_blank" class="copyright">[[footer.carezza.title]]</a>
+    </footer>
+
 </div>
-<script src="/{{ htmlWebpackPlugin.files.chunks.public.entry }}"></script>
 
 </body>
 </html>

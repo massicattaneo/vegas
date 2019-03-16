@@ -1,11 +1,12 @@
-import { xmlToJson } from '../vegas-xml';
-import { tagRegEx } from '../vegas-regexp';
+const { xmlToJson } = require('../vegas-xml');
+const { tagRegEx } = require('../vegas-regexp');
 
 function loopObjectOnString(...args) {
     const [prefix, action, scope, string] = args.length === 3 ? ['', args[0], args[1], args[2]] : args;
     return Object.keys(scope).reduce(function (s, key) {
-        if (scope[key] instanceof Object)
-            return loopObjectOnString(`${prefix ? `${prefix}.` : ''}${key}.`, action, scope[key], s);
+        if (scope[key] instanceof Object) {
+            return loopObjectOnString(`${prefix ? `${prefix}` : ''}${key}.`, action, scope[key], s);
+        }
         return action(s, prefix + key, scope[key], scope);
     }, string);
 }

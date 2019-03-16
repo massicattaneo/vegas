@@ -1,11 +1,11 @@
-import {
+const {
     tagRegEx,
     tagNameRegEx,
     attributesRegEx,
     cssRegEx,
     cssRuleNameRegEx,
     cssRuleValueRegEx
-} from '../vegas-regexp';
+} = require('../vegas-regexp');
 
 function createChild(name, parent) {
     const ret = {

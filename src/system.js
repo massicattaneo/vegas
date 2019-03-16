@@ -32,46 +32,49 @@ const rx = Reactive();
 FP();
 
 const locales = xmlToLocales(localesXml);
-
-/** TODO: xmlParsing && template creation (vegas-template) */
-const store = rx.create({
-    url: '',
-    lang: 'en',
-    balance: 200,
-    list: [
-        { id: 'ME', items: [1, 2] },
-        { id: 'YOU', items: [3, 4] }
-    ],
-    names: ['a', 'b', 'c']
-});
-
-window.v = store;
-
-function currency(value, symbol) {
-    return `${Number(value).toFixed(2)}${symbol || '€'}`;
-}
-
-function string(value, type) {
-    return value.toString()[type]();
-}
-
-function reactive(value, param, parse) {
-    const id = (reactive._id || 0) + 1;
-    reactive._id = id;
-
-    function react({ i }) {
-        if (document.getElementById(`rx_${id}`))
-            document.getElementById(`rx_${id}`).innerHTML = parse(i);
-    }
-
-    rx.connect({ i: () => store[param] }, react);
-    setTimeout(() => react({ i: store[param] }), 0);
-    return `<span id="rx_${id}">${value}</span>`;
-}
-
-const parsers = { currency, reactive, string };
-
-const { html, style } = componentsHandler(handlebarBuilder(localesBuilder(htmlTemplate, locales[store.lang], parsers), store, parsers), components, parsers);
+console.log(localesBuilder('<div>[[footer.trentino.href]]</div>', locales.it, {}))
+// console.log(locales);
+//
+//
+// /** TODO: xmlParsing && template creation (vegas-template) */
+// const store = rx.create({
+//     url: '',
+//     lang: 'en',
+//     balance: 200,
+//     list: [
+//         { id: 'ME', items: [1, 2] },
+//         { id: 'YOU', items: [3, 4] }
+//     ],
+//     names: ['a', 'b', 'c']
+// });
+//
+// window.v = store;
+//
+// function currency(value, symbol) {
+//     return `${Number(value).toFixed(2)}${symbol || '€'}`;
+// }
+//
+// function string(value, type) {
+//     return value.toString()[type]();
+// }
+//
+// function reactive(value, param, parse) {
+//     const id = (reactive._id || 0) + 1;
+//     reactive._id = id;
+//
+//     function react({ i }) {
+//         if (document.getElementById(`rx_${id}`))
+//             document.getElementById(`rx_${id}`).innerHTML = parse(i);
+//     }
+//
+//     rx.connect({ i: () => store[param] }, react);
+//     setTimeout(() => react({ i: store[param] }), 0);
+//     return `<span id="rx_${id}">${value}</span>`;
+// }
+//
+// const parsers = { currency, reactive, string };
+//
+// const { html, style } = componentsHandler(handlebarBuilder(localesBuilder(htmlTemplate, locales[store.lang], parsers), store, parsers), components, parsers);
 // const app = document.getElementById('app');
 // document.head.appendChild(Node(`<style>${style}</style>`));
 // app.innerHTML = html;

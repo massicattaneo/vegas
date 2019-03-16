@@ -1,9 +1,38 @@
 <locales>
-    <locale id="balance">
-        <en>Balance: {{balance, currency, reactive:balance}}</en>
-        <it>SALDO: {{balance, currency, reactive:balance}}</it>
-    </locale>
-    <locale id="press-me">
-        <en>PRESS ME</en>
-    </locale>
+    <locale path="pages/home/href"><it>/it/home.html</it></locale>
+    <locale path="pages/account/href"><it>/it/profilo.html</it></locale>
+    <locale path="pages/info/href"><it>/it/informazioni.html</it></locale>
+    <locale path="pages/phone/href"><it>/it/contattaci.html</it></locale>
+    <locale path="pages/location/href"><it>/it/come-raggiungerci.html</it></locale>
+    <locale path="pages/calendar/href"><it>/it/calendario.html</it></locale>
+    <locale path="pages/photo/href"><it>/it/foto.html</it></locale>
+    <locale path="pages/exchange/href"><it>/it/scambia-affitta-la-tua-casa.html</it></locale>
+
+    <locale path="pages/home/title"><it>HOME</it></locale>
+    <locale path="pages/account/title"><it>PROFILO</it></locale>
+    <locale path="pages/info/title"><it>INFORMAZIONI</it></locale>
+    <locale path="pages/phone/title"><it>CONTATTACI</it></locale>
+    <locale path="pages/location/title"><it>COME RAGGIUNGERCI</it></locale>
+    <locale path="pages/calendar/title"><it>CALENDARIO</it></locale>
+    <locale path="pages/photo/title"><it>FOTO</it></locale>
+    <locale path="pages/exchange/title"><it>SCAMBIA/AFFITTA LA TUA CASA</it></locale>
+
+    <locale path="index/title"><it>CASA CAREZZA</it></locale>
+    <locale path="index/description"><it></it></locale>
+    <locale path="index/image"><it></it></locale>
+    <locale path="index/twitter-site"><it></it></locale>
+    <locale path="index/author"><it></it></locale>
+    <locale path="index/origin"><it>http://www.casacarezza.it</it></locale>
+    <locale path="index/theme-color"><it>#56ab29</it></locale>
+    <locale path="index/language"><it>it</it></locale>
+    <locale path="index/locale"><it>it_IT</it></locale>
+    <locale path="home/title"><it>CASA CAREZZA</it></locale>
+    <locale path="home/subtitle"><it>Dolomiti Multi Residence</it></locale>
+
+    <locale path="footer/trentino/href"><it>https://www.trentino.com/</it></locale>
+    <locale path="footer/trentino/title"><it>Trentino</it></locale>
+    <locale path="footer/superski/href"><it>https://www.dolomitisuperski.com/it</it></locale>
+    <locale path="footer/superski/title"><it>Dolomiti SuperSki</it></locale>
+    <locale path="footer/carezza/href"><it>https://carezza.it</it></locale>
+    <locale path="footer/carezza/title"><it>Lago Carezza</it></locale>
 </locales>
