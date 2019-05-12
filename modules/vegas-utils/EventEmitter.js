@@ -26,10 +26,10 @@ module.exports = function EventEmitter() {
      * @method EventEmitter#off
      * @param {string} eventName - the name of the event to unsubscribe
      * @param {function} callback - the callback to unsubscribe
-     * @returns {undefined}
+     * @returns {Function}
      * */
     obj.off = function (eventName, callback) {
-        events[eventName].splice(callback, 1);
+        return events[eventName].splice(callback, 1);
     };
     /**
      * clear all the events

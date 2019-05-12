@@ -1,5 +1,5 @@
-module.exports = function (FnObj = Function) {
-    const proto = FnObj.prototype;
+module.exports = function (FnObj = {}) {
+    const proto = FnObj.prototype || FnObj;
 
     proto.partial = function (...args1) {
         const self = this;
@@ -137,5 +137,7 @@ module.exports = function (FnObj = Function) {
             return value;
         };
     };
+
+    return proto;
 
 };

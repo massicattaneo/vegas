@@ -1,20 +1,23 @@
 import FP from 'vegas-functional-programming';
-import Em from 'vegas-event-emitter';
-import { Middleware, Stack } from 'vegas-utils';
+import EventEmitter from 'vegas-utils/EventEmitter';
+import Middleware from 'vegas-utils/Middleware';
+import Thread from 'vegas-utils/Thread';
+import Stack from 'vegas-utils/Stack';
+import * as rx from 'vegas-utils/Reactive';
 import { Node } from 'vegas-dom';
-import Reactive from 'vegas-reactive';
 import { xmlToJson } from 'vegas-xml';
 import htmlTemplate from './template.html';
-import { componentsHandler, handlebarBuilder, localesBuilder } from '../modules/vegas-templates';
+import { componentsHandler, handlebarBuilder, localesBuilder } from 'vegas-templates';
 import localesXml from './locales.xml';
 import { xmlToLocales } from 'vegas-localization';
+import { currency, string } from './shared';
 import { createComponents } from '../modules/vegas-dom';
 
 //IMPORT STATEMENTS FOLDER
-const STATEMENTS = require.context('./statements/', true, /.vue/);
+const STATEMENTS = require.context('./statements/', true, /.js/);
 const statements = {};
 STATEMENTS.keys().forEach((filename) => {
-    statements[filename.replace('./', '').replace('.vue', '')] = STATEMENTS(filename).default;
+    statements[filename.replace('./', '').replace('.js', '')] = STATEMENTS(filename).default;
 });
 
 //IMPORT STATEMENTS FOLDER
@@ -25,18 +28,16 @@ COMPONENTS.keys().forEach((filename) => {
 });
 
 
-const em = Em();
+const em = EventEmitter();
 const stack = Stack();
-const rx = Reactive();
 
-FP();
+FP(Function);
 
 const locales = xmlToLocales(localesXml);
-console.log(localesBuilder('<div>[[footer.trentino.href]]</div>', locales.it, {}))
 // console.log(locales);
-//
-//
-// /** TODO: xmlParsing && template creation (vegas-template) */
+
+
+/** TODO: xmlParsing && template creation (vegas-template) */
 // const store = rx.create({
 //     url: '',
 //     lang: 'en',
@@ -49,32 +50,12 @@ console.log(localesBuilder('<div>[[footer.trentino.href]]</div>', locales.it, {}
 // });
 //
 // window.v = store;
-//
-// function currency(value, symbol) {
-//     return `${Number(value).toFixed(2)}${symbol || '€'}`;
-// }
-//
-// function string(value, type) {
-//     return value.toString()[type]();
-// }
-//
-// function reactive(value, param, parse) {
-//     const id = (reactive._id || 0) + 1;
-//     reactive._id = id;
-//
-//     function react({ i }) {
-//         if (document.getElementById(`rx_${id}`))
-//             document.getElementById(`rx_${id}`).innerHTML = parse(i);
-//     }
-//
-//     rx.connect({ i: () => store[param] }, react);
-//     setTimeout(() => react({ i: store[param] }), 0);
-//     return `<span id="rx_${id}">${value}</span>`;
-// }
-//
-// const parsers = { currency, reactive, string };
+
+
+// const parsers = { currency, string };
 //
 // const { html, style } = componentsHandler(handlebarBuilder(localesBuilder(htmlTemplate, locales[store.lang], parsers), store, parsers), components, parsers);
+// console.log(html, style)
 // const app = document.getElementById('app');
 // document.head.appendChild(Node(`<style>${style}</style>`));
 // app.innerHTML = html;
@@ -140,17 +121,25 @@ console.log(localesBuilder('<div>[[footer.trentino.href]]</div>', locales.it, {}
 //
 // function Sender() {
 //     return {
-//         post: function (a, b, next) {
-//             console.log('pepe', a, this);
+//         post: function (req, res, next) {
+//             console.log('post', req);
+//             next();
+//         },
+//         send: function (params) {
+//             console.log('send');
+//             // next();
 //         }
 //     };
 // }
 //
-// const sender = Middleware('post', Sender());
-// sender.before(function (req, res, next) {
-//     this.req = req;
-//     this.res = res;
-//     next('a');
+// const origin = Sender();
+// const sender = Middleware('send', Middleware('post', origin));
+// sender.beforePost(function (req, res, next) {
+//     req.body = {};
+//     next();
+// });
+// sender.afterPost(function (req, res, next) {
+//     console.log(this);
 // });
 // sender.post({}, {});
 
@@ -184,48 +173,131 @@ console.log(localesBuilder('<div>[[footer.trentino.href]]</div>', locales.it, {}
 //
 
 /** STORE */
-// const store = rx.create({ a: 1 });
-//
-// rx.use(store, function (s, next) {
+// const a = rx.create(1);
+// const b = rx.create(2);
+
+// rx.use(store1, function use1(s, next) {
 //     s.a = 23;
 //     setTimeout(next, 3500);
 // });
 
-// rx.use(store, function (s, next) {
-//     console.log('USE CONTEXT', this);
-//     setTimeout(next, 500);
+// rx.use({ a }, function use2({ a }, next) {
+//     console.log('step1');
+//     setTimeout(next, 3500);
+// });
+// rx.use({ a }, function use2({ a }, next) {
+//     console.log('step2');
+//     a.update(a + 3);
+//     setTimeout(next, 3500);
 // });
 //
-// rx.set(store, 'a', 2)
+// a.set(2)
 //     .subscribe(function () {
-//         console.log('AFTER SET', store.a, this);
+//         console.log(a + 0);
 //     });
-//
+
 // rx.set(store, 'a', 4)
 //     .promise()
 //     .then(function () {
 //         console.log('AFTER PROMISE', store.a);
 //     });
-//
-// rx.connect(store, function (s) {
-//     console.log('CONNECT CONTEXT', this);
-//     console.log('CONNECT', s.a);
-// });
 
-// store.a = 3;
-//
-//
-// rx.use(store, function (s, next) {
-//     s.a = 4;
+// rx.use({ a }, function ({ a }, next) {
+//     a.update(a * 2); //5
 //     next();
 // });
 //
-// rx.connect(store, function ({ a }) {
-//     console.log('VALUE1 ', a);
+// rx.use({ b }, function ({ b }, next) {
+//     b.update(b * 2); //8
+//     next();
 // });
+//
+// const disconnect = rx.connect({ a, b }, function ({ a, b }) {
+//     console.log('CONNECT', a + b);
+// });
+//
+// b.set(300);
+// disconnect();
+// a.set(1);
 
+// const shared = rx.create({ a: 1 });
+// const thread1 = Thread(statements, shared, { numberOfWorkers: 1 });
+// const thread2 = Thread(statements, shared);
+// const thread3 = Thread(statements, shared);
+
+// thread1
+//     .catch
+//     .map(function ({message}) {
+//         return [`[${this.threadName}]`, message]
+//     })
+//     .spread()
+//     .subscribe(console.warn)
+//
+// thread1.main('pow', function () {
+//     return [234];
+// }).map(a => a)
+//     .subscribe(console.log);
 
 // (async function f() {
-//     const a = await Promise.all(rx.set(store, 'a', 2));
-//     console.log(a);
+//     const time = Date.now();
+//     Promise.all([
+//         thread2.worker('loop', () => 2000000000).promise(),
+//         thread3.worker('loop', () => 2000000000).promise()
+//     ]).then(function (res) {
+//         console.log('different thread', Date.now() - time, res);
+//     });
+//
+//
+//     const time1 = Date.now();
+//     const res = await Promise.all([
+//         thread1.worker('loop', () => 2000000000).promise(),
+//         thread1.worker('loop', () => 2000000000).promise()
+//     ]);
+//     console.log('same threads', Date.now() - time1, res);
 // })();
+
+// thread1
+//     .worker('loop', () => 2000000000)
+//     .subscribe(a => console.log(a));
+//
+// thread1
+//     .worker('loop', () => 2)
+//     .subscribe(a => console.log(a));
+
+// (async function () {
+//     thread2.worker('loop', () => [2000000000, 2]).promise().then(console.log);
+//     thread2.worker('loop', () => [20000000, 2]).promise().then(console.log);
+//     thread1.worker('loop', () => [200000000, 2]).promise().then(console.log);
+//     thread1.worker('loop', () => [2000000, 2]).promise().then(console.log);
+// })();
+
+// thread1.worker('loop', function () {
+//     return [20000000000, 2];
+// }).subscribe(function () {
+//     console.log(this);
+// });
+//
+// (async function f() {
+//     for (let a = 0; a < 10; a++)
+//         await thread1.main('add', function () {
+//             return [a, 2];
+//         });
+// })();
+//
+// (async function f() {
+//     for (let a = 0; a < 10; a++)
+//         await thread2.main('add', function () {
+//             return [a, 2];
+//         });
+// })();
+//
+// const store = rx.create({ a: 1 });
+// thread1.reactive('reactive', function () {
+//     return store;
+// });
+// store.a.set(10);
+
+// XSLT
+
+
+
