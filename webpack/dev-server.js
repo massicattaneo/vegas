@@ -34,28 +34,11 @@ module.exports = function (app, express) {
     app.use(express.static(__dirname));
 
     return function response(req, res) {
-        const file = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/index.html'), 'utf8');
-        let partial;
-        const [string, lang = 'it'] = (req.url || '').match(/\/([^/]*)(\/.*)/) || [];
-        const locale = locales[lang] || {};
-        if (locale.pages) {
-
-            const anies = Object.keys(locale.pages).map(key => {
-                return { key, value: locale.pages[key].href };
-            }) || [];
-            // const { key } = anies.find(({ value }) => value === req.url) || {};
-            // if (fs.existsSync(path.resolve(__dirname, `../src/pages/${key}.html`))) {
-            //     partial = fs.readFileSync(path.resolve(__dirname, `../src/pages/${key}.html`), 'utf8');
-            // } else {
-            partial = fs.readFileSync(path.resolve(__dirname, `../src/pages/home.html`), 'utf8');
-            // }
-        } else {
-            partial = fs.readFileSync(path.resolve(__dirname, `../src/pages/home.html`), 'utf8');
-
-        }
-        const parsedFile = localesBuilder(file, locale, parsers);
-        const homeContent = localesBuilder(partial, locale, parsers);
-        res.write(parsedFile.replace('**content**', homeContent));
+        res.write(
+            middleware.fileSystem.readFileSync(
+                path.join(__dirname, "dist/index.html")
+            )
+        );
         res.end();
     };
 

@@ -72,7 +72,6 @@ const config = {
         new HtmlWebpackPlugin({
             chunks: ['public'],
             template: 'src/index.hbs',
-            inject: false,
             filename: './index.html',
             version: pkg.version
         }),

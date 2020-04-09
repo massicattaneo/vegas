@@ -126,6 +126,18 @@ module.exports = function (FnObj = {}) {
         });
     };
 
+    proto.memoize = function (transform = e => e.toString()) {
+        const self = this;
+        const memory = [];
+        return function (...args) {
+            const memo = memory[transform(...args)];
+            if (memo) return memo;
+            const res = self(...args);
+            memory[transform(...args)] = res;
+            return res;
+        };
+    };
+
     FnObj.wrap = function (value) {
         return function (callback) {
             return callback(value);

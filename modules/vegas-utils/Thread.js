@@ -97,12 +97,6 @@ module.exports = function Thread(statements = {}, sharedContext = {}, {
         };
     };
 
-    thread.reactive = (statement, callback) => {
-        return rx.connect([].concat(callback.call(context))[0], function (...args) {
-            getFunction(statements, statement).call(context, ...args);
-        });
-    };
-
     thread.catch = function (callback) {
         errors.push(callback);
     };

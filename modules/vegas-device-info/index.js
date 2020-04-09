@@ -104,9 +104,8 @@ function getWindowInfo() {
 export default function ({ ua, assetsQuality }, errorHandler = e => e) {
     const em = EventEmitter();
     const designModes = [];
-    const obj = {};
 
-    const privateInfo = {
+    const info = {
         deviceType: 'unknown',
         os: 'unknown',
         osVersion: -1,
@@ -119,11 +118,11 @@ export default function ({ ua, assetsQuality }, errorHandler = e => e) {
     try {
         const osInfo = getOsInfo(ua);
         const browserInfo = getBrowserInfo(ua);
-        privateInfo.deviceType = getDeviceType(ua);
-        privateInfo.os = osInfo[0].toLowerCase();
-        privateInfo.osVersion = Number(osInfo[1]);
-        privateInfo.browserName = browserInfo[1].toLowerCase();
-        privateInfo.browserVersion = (isNaN(browserInfo[2]) ? -1 : Number(browserInfo[2]));
+        info.deviceType = getDeviceType(ua);
+        info.os = osInfo[0].toLowerCase();
+        info.osVersion = Number(osInfo[1]);
+        info.browserName = browserInfo[1].toLowerCase();
+        info.browserVersion = (isNaN(browserInfo[2]) ? -1 : Number(browserInfo[2]));
     } catch (error) {
         errorHandler({ type: 'DEVICE INFO SETUP', subType: error, description: ua });
     }
@@ -134,47 +133,49 @@ export default function ({ ua, assetsQuality }, errorHandler = e => e) {
 
     function getIExtendedInfo() {
         const opts = { testUserAgent };
-        extendObject(opts, privateInfo);
+        extendObject(opts, info);
         return opts;
     }
 
     function updateMode() {
         const result = designModes.filter(item => item.fn(getIExtendedInfo()));
-        privateInfo.designMode = result.length ? result[0].name : '';
+        info.designMode = result.length ? result[0].name : '';
     }
 
     function resize() {
-        extendObject(privateInfo, getWindowInfo());
+        extendObject(info, getWindowInfo());
         updateMode();
-        em.emit('resize', privateInfo);
+        em.emit('resize', info);
     }
 
-    obj.setDesignMode = function (name, fn) {
+    function setDesignMode(name, fn) {
         designModes.unshift({ name, fn });
         updateMode();
-    };
+    }
 
-    obj.info = function () {
-        return privateInfo;
-    };
-
-    obj.testUserAgent = function (regEx) {
+    function testUserAgent(regEx) {
         return testUserAgent(regEx);
-    };
+    }
 
-    obj.onResize = function (callback) {
-        callback(privateInfo);
+    function onResize(callback) {
+        callback(info);
         return em.on('resize', callback);
-    };
+    }
 
-    obj.extend = function (property, value, callback = e => true) {
+    function extend(property, value, callback = e => true) {
         if (callback(getIExtendedInfo())) {
-            privateInfo[property] = value;
+            info[property] = value;
         }
-    };
+    }
 
     if (window)
         window.addEventListener('resize', resize, false);
 
-    return obj;
+    return {
+        setDesignMode,
+        info,
+        testUserAgent,
+        onResize,
+        extend
+    };
 }
